@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/benyo27/Desktop/7mo-semestre/Diseño Detallado de Software/Proyecto/E4/RawDeal/RawDealView/RawDealView.csproj": {}
+    "/Users/benyo27/Desktop/7mo-semestre/Diseño Detallado de Software/Proyecto/Github/ProyectoDetallado/RawDealView/RawDealView.csproj": {}
   },
   "projects": {
-    "/Users/benyo27/Desktop/7mo-semestre/Diseño Detallado de Software/Proyecto/E4/RawDeal/RawDealView/RawDealView.csproj": {
+    "/Users/benyo27/Desktop/7mo-semestre/Diseño Detallado de Software/Proyecto/Github/ProyectoDetallado/RawDealView/RawDealView.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/benyo27/Desktop/7mo-semestre/Diseño Detallado de Software/Proyecto/E4/RawDeal/RawDealView/RawDealView.csproj",
+        "projectUniqueName": "/Users/benyo27/Desktop/7mo-semestre/Diseño Detallado de Software/Proyecto/Github/ProyectoDetallado/RawDealView/RawDealView.csproj",
         "projectName": "RawDealView",
-        "projectPath": "/Users/benyo27/Desktop/7mo-semestre/Diseño Detallado de Software/Proyecto/E4/RawDeal/RawDealView/RawDealView.csproj",
+        "projectPath": "/Users/benyo27/Desktop/7mo-semestre/Diseño Detallado de Software/Proyecto/Github/ProyectoDetallado/RawDealView/RawDealView.csproj",
         "packagesPath": "/Users/benyo27/.nuget/packages/",
-        "outputPath": "/Users/benyo27/Desktop/7mo-semestre/Diseño Detallado de Software/Proyecto/E4/RawDeal/RawDealView/obj/",
+        "outputPath": "/Users/benyo27/Desktop/7mo-semestre/Diseño Detallado de Software/Proyecto/Github/ProyectoDetallado/RawDealView/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/benyo27/.nuget/NuGet/NuGet.Config"

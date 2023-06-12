@@ -2,14 +2,24 @@ namespace RawDeal;
 
 public class EffectCatalog
 {
+    private static EffectCatalog instance = new EffectCatalog();
     private Dictionary<string, List<IEffect>> effects;
+
+    public static EffectCatalog Instance  { get { return instance; } }
+
+    public void ApplyEffects(string cardTitle)
+    {
+        List<IEffect> effects = instance.GetEffects(cardTitle);
+        foreach (IEffect effect in effects) effect.Apply();
+    }
 
     public List<IEffect> GetEffects(string cardTitle)
     {
+        if (!effects.ContainsKey(cardTitle)) return new List<IEffect>();
         return effects[cardTitle];
     }
 
-    public EffectCatalog()
+    private EffectCatalog()
     {
         effects = new Dictionary<string, List<IEffect>>();
         // TODO : As an action, you may discard this card to draw 1 card. Doing this will not cause any damage to opponent. 

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "sKNALvUo9hC/sy7LGUM61Gc3siaejbyVLlv796eLKmJICPwFAdySWZ2IUb2K5HYG5QdJfJMLvgDZy6j6NIX4Dw==",
+  "dgSpecHash": "9tDjT07NjJlhIkUjuQf4tHrNr0s+GDCN3fsh5aMiXnJoLV9XSTvSnQqMaJs1Gk7G8NQlFAnYnEQsSUQla/w0nw==",
   "success": true,
-  "projectFilePath": "/Users/benyo27/Desktop/7mo-semestre/Diseño Detallado de Software/Proyecto/E4/RawDeal/RawDeal.Tests/RawDeal.Tests.csproj",
+  "projectFilePath": "/Users/benyo27/Desktop/7mo-semestre/Diseño Detallado de Software/Proyecto/Github/ProyectoDetallado/RawDeal.Tests/RawDeal.Tests.csproj",
   "expectedPackageFiles": [
     "/Users/benyo27/.nuget/packages/coverlet.collector/3.1.0/coverlet.collector.3.1.0.nupkg.sha512",
     "/Users/benyo27/.nuget/packages/microsoft.codecoverage/16.11.0/microsoft.codecoverage.16.11.0.nupkg.sha512",

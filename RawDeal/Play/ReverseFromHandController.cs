@@ -8,7 +8,7 @@ public static class ReverseFromHandController
     private static List<string> playableReversalsFormatted;
     private static IntList reversalIndexInHand;
     private static int reversalIndexInput;
-    private static EffectCatalog effectCatalog = new EffectCatalog();
+    private static EffectCatalog effectCatalog = EffectCatalog.Instance;
     private static CardInfo reversal;
 
     public static bool DoesReverse()
@@ -45,14 +45,8 @@ public static class ReverseFromHandController
             Game.CurrentOponnent._superstarName, playableReversalsFormatted[reversalIndexInput]
         );
         Game.CurrentPlayer.DiscardCardFromHand(CardBeingPlayed.IndexInHand);
-        ApplyCardEffect();
+        effectCatalog.ApplyEffects(reversal.Title);
         PlayReversal();
-    }
-
-    private static void ApplyCardEffect()
-    {
-        List<IEffect> effects = effectCatalog.GetEffects(reversal.Title);
-        foreach (IEffect effect in effects) effect.Apply();
     }
 
     private static void PlayReversal()

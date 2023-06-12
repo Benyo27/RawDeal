@@ -2,5 +2,5 @@ namespace RawDeal;
 
 public interface ICondition
 {
-    bool DoesReverse(bool reversalIsPlayedFromHand, CardInfo cardToReverse, string cardPlayedAs);
+    bool Accomplished(bool playedFromHand, CardInfo cardToReverse, string playedAs);
 }

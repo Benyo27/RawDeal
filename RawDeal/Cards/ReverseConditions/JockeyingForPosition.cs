@@ -6,11 +6,11 @@ public class JockeyingForPosition : ICondition
 
     public JockeyingForPosition(bool isJockeyingForP) => this.isJockeyingForP = isJockeyingForP;
 
-    public bool DoesReverse(bool reversalIsPlayedFromHand, CardInfo cardToReverse, string cardPlayedAs)
+    public bool Accomplished(bool playedFromHand, CardInfo cardToReverse, string playedAs)
     {
         if (cardToReverse.Title != "Jockeying for Position") { return false; }
         if (isJockeyingForP) { return true; }
-        if (reversalIsPlayedFromHand) { return true; }
+        if (playedFromHand) { return true; }
         return false;
     }
 }

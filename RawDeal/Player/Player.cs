@@ -44,7 +44,7 @@ public class Player : PlayerInfo
             cardsInArsenal.RemoveAt(cardsInArsenal.Count - 1);
         }
         _numberOfCardsInArsenal -= superStar.CardInfo.HandSize;
-        getPlayableCardsController = new GetPlayableCardsController(cardsInHand, _fortitudeRating);
+        getPlayableCardsController = new GetPlayableCardsController(this);
     }
 
     private void SetupSuperStar() =>
@@ -63,18 +63,12 @@ public class Player : PlayerInfo
         hasPlayedAbilityInThisTurn = false;
     }
 
-    public (CardCollection, List<string>, IntList) GetPlayableNotReversalCards()
-    {
-        getPlayableCardsController.UpdatePlayerElements(cardsInHand, _fortitudeRating);
-        return getPlayableCardsController.GetPlayableNotReversalCards();
-    }
+    public (CardCollection, List<string>, IntList) GetPlayableNotReversalCards() =>
+        getPlayableCardsController.GetPlayableNotReversalCards();
 
     public (CardCollection, List<string>, IntList) GetPlayableReversals(
-        CardInfo cardToReverse, string playedAs)
-    {
-        getPlayableCardsController.UpdatePlayerElements(cardsInHand, _fortitudeRating);
-        return getPlayableCardsController.GetPlayableReversals(cardToReverse, playedAs);
-    }
+        CardInfo cardToReverse, string playedAs) =>
+        getPlayableCardsController.GetPlayableReversals(cardToReverse, playedAs);
 
     public string ReceiveDamageFromCard(int totalDamage, CardInfo cardDoingDamage, string playedAs)
     {
@@ -83,8 +77,8 @@ public class Player : PlayerInfo
             if (Game.APlayerHasWon(cardDoingDamage)) { return "Game Over"; }
             CardInfo cardToDiscard = ReceiveOneDamage(currentDamage, totalDamage);
             if (
-                ReverseFromDeckController.DoesReverse(cardDoingDamage, cardToDiscard, playedAs) &&
-                HaveFortitudeToUseReversal(cardToDiscard)
+                HaveFortitudeToUseReversal(cardToDiscard) &&
+                ReverseFromDeckController.DoesReverse(cardDoingDamage, cardToDiscard, playedAs)
             )
             {
                 return ReverseFromDeckController.Reverse(
@@ -95,7 +89,7 @@ public class Player : PlayerInfo
         return "";
     }
 
-    private bool HaveFortitudeToUseReversal(CardInfo card)
+    public bool HaveFortitudeToUseReversal(CardInfo card)
     {
         int transitoryFortitudeRating = Int32.Parse(card.Fortitude);
         if (JockeyingForP.ReversalPlus8F) { transitoryFortitudeRating += 8; }

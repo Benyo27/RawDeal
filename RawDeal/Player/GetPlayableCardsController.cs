@@ -7,28 +7,21 @@ public class GetPlayableCardsController
     private CardCollection playableCards = new CardCollection(new List<CardInfo>());
     private List<string> playableCardsFormatted;
     private IntList playableCardsIndexInHand;
-    private CardCollection cardsInHand = new CardCollection(new List<CardInfo>());
-    private int fortitudeRating;
-    private static ReverseConditionCatalog reverseConditionCatalog = new ReverseConditionCatalog();
+    private Player player;
+    private static ReverseConditionCatalog reverseConditionCatalog =
+        ReverseConditionCatalog.Instance;
 
-    public GetPlayableCardsController(CardCollection cardsInHand, int fortitudeRating)
+    public GetPlayableCardsController(Player player)
     {
-        this.cardsInHand = cardsInHand;
-        this.fortitudeRating = fortitudeRating;
-    }
-
-    public void UpdatePlayerElements(CardCollection currentCardsInHand, int currentFortitudeRating)
-    {
-        cardsInHand = currentCardsInHand;
-        fortitudeRating = currentFortitudeRating;
+        this.player = player;
     }
 
     public (CardCollection, List<string>, IntList) GetPlayableNotReversalCards()
     {
         EmptyPlayableCardsRelatedLists();
-        for (int i = 0; i < cardsInHand.Count; i++)
+        for (int i = 0; i < player.CardsInHand.Count; i++)
         {
-            if (fortitudeRating >= Int32.Parse(cardsInHand[i].Fortitude))
+            if (player._fortitudeRating >= Int32.Parse(player.CardsInHand[i].Fortitude))
             {
                 ProcessNotReversalPlayableCard(i);
             }
@@ -38,14 +31,13 @@ public class GetPlayableCardsController
 
     private void ProcessNotReversalPlayableCard(int index)
     {
-        for (int j = 0; j < cardsInHand[index].Types.Count; j++)
+        for (int j = 0; j < player.CardsInHand[index].Types.Count; j++)
         {
-            if (cardsInHand[index].Types[j] != "Reversal")
+            if (player.CardsInHand[index].Types[j] != "Reversal")
             {
-                AddElementsToPlayableCardsRelatedLists(
-                    index,
-                    new PlayInfo(cardsInHand[index], cardsInHand[index].Types[j].ToUpper())
-                );
+                AddElementsToPlayableCardsRelatedLists(index, 
+                    new PlayInfo(player.CardsInHand[index], 
+                        player.CardsInHand[index].Types[j].ToUpper()));
             }
         }
     }
@@ -54,33 +46,17 @@ public class GetPlayableCardsController
         CardInfo cardToReverse, string playedAs)
     {
         EmptyPlayableCardsRelatedLists();
-        for (int i = 0; i < cardsInHand.Count; i++)
+        for (int i = 0; i < player.CardsInHand.Count; i++)
         {
-            if (HaveFortitudeToUseReversal(cardsInHand[i]) &&
-                CheckReverseCatalog(cardsInHand[i].Title, cardToReverse, playedAs))
+            if (player.HaveFortitudeToUseReversal(player.CardsInHand[i]) &&
+                reverseConditionCatalog.DoesReverse(player.CardsInHand[i].Title,
+                    true, cardToReverse, playedAs))
             {
-                PlayInfo playInfo = new PlayInfo(cardsInHand[i], "REVERSAL");
+                PlayInfo playInfo = new PlayInfo(player.CardsInHand[i], "REVERSAL");
                 AddElementsToPlayableCardsRelatedLists(i, playInfo);
             }
         }
         return (playableCards, playableCardsFormatted, playableCardsIndexInHand);
-    }
-
-    private static bool CheckReverseCatalog(string cardTitle, CardInfo cardDoingDamage, string playedAs)
-    {
-        foreach (ICondition condition in reverseConditionCatalog.GetConditions(cardTitle))
-        {
-            if (!condition.DoesReverse(true, cardDoingDamage, playedAs)) { return false; }
-        }
-        return true;
-    }
-
-    private bool HaveFortitudeToUseReversal(CardInfo card)
-    {
-        int transitoryFortitudeRating = Int32.Parse(card.Fortitude);
-        if (JockeyingForP.ReversalPlus8F) { transitoryFortitudeRating += 8; }
-        if (fortitudeRating < transitoryFortitudeRating) { return false; }
-        return true;
     }
 
     private void EmptyPlayableCardsRelatedLists()
@@ -92,7 +68,7 @@ public class GetPlayableCardsController
 
     private void AddElementsToPlayableCardsRelatedLists(int index, PlayInfo playInfo)
     {
-        playableCards.Add(cardsInHand[index]);
+        playableCards.Add(player.CardsInHand[index]);
         playableCardsFormatted.Add(Formatter.PlayToString(playInfo));
         playableCardsIndexInHand.Add(index);
     }

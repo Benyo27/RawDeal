@@ -2,22 +2,14 @@ namespace RawDeal;
 
 public static class ReverseFromDeckController
 {
-    private static ReverseConditionCatalog reverseConditionCatalog = new ReverseConditionCatalog();
+    private static ReverseConditionCatalog reverseConditionCatalog =
+        ReverseConditionCatalog.Instance;
 
     public static bool DoesReverse(
         CardInfo cardDoingDamage, CardInfo cardToDiscard, string playedAs
     ) =>
         cardDoingDamage.Types[0] != "Reversal" &&
-        CheckReverseCatalog(cardToDiscard.Title, cardDoingDamage, playedAs);
-
-    private static bool CheckReverseCatalog(string cardTitle, CardInfo cardDoingDamage, string playedAs)
-    {
-        foreach (ICondition condition in reverseConditionCatalog.GetConditions(cardTitle))
-        {
-            if (!condition.DoesReverse(false, cardDoingDamage, playedAs)) { return false; }
-        }
-        return true;
-    }
+        reverseConditionCatalog.DoesReverse(cardToDiscard.Title, false, cardDoingDamage, playedAs);
 
     public static string Reverse(
         string cardTitle, int totalDamage, int currentDamage)

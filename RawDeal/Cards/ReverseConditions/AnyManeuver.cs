@@ -1,15 +1,20 @@
 namespace RawDeal;
 
-public class Does7DOrLess : ICondition
+public class AnyManeuver : ICondition
 {
     private string subtype;
+    private bool have7DCondition;
 
-    public Does7DOrLess(string subtype) => this.subtype = subtype;
-
-    public bool DoesReverse(bool reversalIsPlayedFromHand, CardInfo cardToReverse, string cardPlayedAs)
+    public AnyManeuver(string subtype, bool have7DCondition)
     {
-        if (!CheckDamageToReverse(cardToReverse)) { return false; }
-        bool playedAsManeuver = cardPlayedAs == "MANEUVER";
+        this.subtype = subtype;
+        this.have7DCondition = have7DCondition;
+    }
+
+    public bool Accomplished(bool playedFromHand, CardInfo cardToReverse, string playedAs)
+    {
+        if (have7DCondition && !CheckDamageToReverse(cardToReverse)) { return false; }
+        bool playedAsManeuver = playedAs == "MANEUVER";
         bool isSubtype = subtype == "any" || cardToReverse.Subtypes.Contains(subtype);
         if (playedAsManeuver && isSubtype) { return true; }
         return false;
