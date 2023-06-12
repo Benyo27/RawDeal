@@ -8,13 +8,13 @@ public class CardCollection
 
     public int Count { get { return cards.Count; } }
 
-    public IEnumerator<CardInfo> GetEnumerator() => cards.GetEnumerator();
-
     public CardInfo this[int index]
     {
         get => cards[index];
         set => cards[index] = value;
     }
+
+    public IEnumerator<CardInfo> GetEnumerator() => cards.GetEnumerator();
 
     public CardInfo Find(string cardTitle)
     {
