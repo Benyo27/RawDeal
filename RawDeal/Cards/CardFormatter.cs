@@ -16,14 +16,14 @@ public static class CardFormatter
             case CardSet.RingsidePile:
                 return GetCardsFormatted(Game.CurrentPlayer.CardsInRingside);
             case CardSet.OpponentsRingArea:
-                return GetCardsFormatted(Game.CurrentOponnent.CardsInRingArea);
+                return GetCardsFormatted(Game.CurrentOpponent.CardsInRingArea);
             case CardSet.OpponentsRingsidePile:
-                return GetCardsFormatted(Game.CurrentOponnent.CardsInRingside);
+                return GetCardsFormatted(Game.CurrentOpponent.CardsInRingside);
             default:
                 throw new Exception("Invalid card set");
         }
     }
-    
+
     public static List<string> GetCardsFormatted(CardCollection cards)
     {
         List<string> cardsFormatted = new List<string>();

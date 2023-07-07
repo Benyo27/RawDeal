@@ -2,7 +2,7 @@ using RawDealView.Options;
 
 namespace RawDeal;
 
-public static class JockeyingForP
+public static class JockeyingForPBonuses
 {
     public static bool IsActive = false;
     public static SelectedEffect SelectedEffect { get; set; }

@@ -14,15 +14,7 @@ public static class ReverseFromDeckController
     public static string Reverse(
         string cardTitle, int totalDamage, int currentDamage)
     {
-        if (cardTitle == "Jockeying for Position") { JockeingJockeyingFPReverse(); }
         if (currentDamage == totalDamage) { return "Reversed at last card"; }
         return "Reversed";
-    }
-
-    private static void JockeingJockeyingFPReverse()
-    {
-        JockeyingForP.SelectedEffect = Game.View
-            .AskUserToSelectAnEffectForJockeyForPosition(Game.CurrentPlayer._superstarName);
-        JockeyingForP.IsActive = true;
     }
 }

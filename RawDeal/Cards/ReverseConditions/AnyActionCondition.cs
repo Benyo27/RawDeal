@@ -1,6 +1,6 @@
 namespace RawDeal;
 
-public class AnyAction : ICondition
+public class AnyActionCondition : IReverseCondition
 {
     public bool Accomplished(bool playedFromHand, CardInfo cardToReverse, string playedAs)
     {

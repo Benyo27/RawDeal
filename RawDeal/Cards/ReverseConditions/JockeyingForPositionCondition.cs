@@ -1,10 +1,10 @@
 namespace RawDeal;
 
-public class JockeyingForPosition : ICondition
+public class JockeyingForPositionCondition : IReverseCondition
 {
     private bool isJockeyingForP;
 
-    public JockeyingForPosition(bool isJockeyingForP) => this.isJockeyingForP = isJockeyingForP;
+    public JockeyingForPositionCondition(bool isJockeyingForP) => this.isJockeyingForP = isJockeyingForP;
 
     public bool Accomplished(bool playedFromHand, CardInfo cardToReverse, string playedAs)
     {

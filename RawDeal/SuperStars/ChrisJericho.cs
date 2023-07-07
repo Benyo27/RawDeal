@@ -7,6 +7,6 @@ public class ChrisJericho : SuperStar
     {
         Game.View.SayThatPlayerIsGoingToUseHisAbility(CardInfo.Name, CardInfo.SuperstarAbility);
         Game.CurrentPlayer.AskToDiscardCardsFromHand(1);
-        Game.CurrentOponnent.AskToDiscardCardsFromHand(1);
+        Game.CurrentOpponent.AskToDiscardCardsFromHand(1);
     }
 }

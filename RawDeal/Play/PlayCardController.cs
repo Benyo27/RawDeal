@@ -2,14 +2,22 @@ namespace RawDeal;
 
 public static class PlayCardController
 {
+    private static EffectCatalog effectCatalog = EffectCatalog.Instance;
+    private static bool cardWasDiscarded = false;
+
+    public static bool CardWasDiscarded { set => cardWasDiscarded = value; }
+
     public static void PlayCard()
     {
-        if (!DefineCardToPlay()) { return; }
-        if (ReverseFromHandController.DoesReverse()) { return; }
+        if (!DefineCardToPlay() || ReverseFromHandController.DoesReverse()) { return; }
         Game.View.SayThatPlayerSuccessfullyPlayedACard();
-        if (CardBeingPlayed.PlayedAs == "ACTION") { PlayCardAsAction(); return; }
-        else { PlayCardAsManeuver(); }
-        JockeyingForP.MakeFalse();
+        if (!ContinueAfterApplyingEffects()) { return; }
+        Game.CurrentPlayer.PlayCard(CardBeingPlayed.IndexInHand);
+        if (CardBeingPlayed.PlayedAs == "MANEUVER")
+        {
+            DamageOpponent();
+            MakeBonusesFalse();
+        }
     }
 
     private static bool DefineCardToPlay()
@@ -34,33 +42,23 @@ public static class PlayCardController
         return RegexController.Match(cardFormatted, pattern);
     }
 
-    private static void PlayCardAsAction()
+    private static bool ContinueAfterApplyingEffects()
     {
-        if (CardBeingPlayed.CardInfo.Title == "Jockeying for Position")
-        {
-            PlayJockeyingFPAsAction(); return;
-        }
-        Game.View.SayThatPlayerMustDiscardThisCard(
-            Game.CurrentPlayer.SuperStar.CardInfo.Name, CardBeingPlayed.CardInfo.Title
-        );
-        Game.CurrentPlayer.DiscardCardFromHand(CardBeingPlayed.IndexInHand);
-        Game.View.SayThatPlayerDrawCards(Game.CurrentPlayer.SuperStar.CardInfo.Name, 1);
-        Game.CurrentPlayer.DrawCards(1, false);
+        effectCatalog.ApplyEffects(CardBeingPlayed.CardInfo.Title);
+        if (!Game.ContinuePlaying) { return false; }
+        if (cardWasDiscarded) { cardWasDiscarded = false; return false; }
+        return true;
     }
 
-    private static void PlayJockeyingFPAsAction()
+    private static void DamageOpponent()
     {
-        JockeyingForP.SelectedEffect = Game.View.AskUserToSelectAnEffectForJockeyForPosition(
-            Game.CurrentPlayer._superstarName
-        );
-        JockeyingForP.IsActive = true;
-        Game.CurrentPlayer.PlayCard(CardBeingPlayed.IndexInHand);
+        string response = DamageOpponentController.MakeDamage(CardBeingPlayed.CardInfo, 0);
+        DamageOpponentController.SolveDamageResponse(response);
     }
 
-    private static void PlayCardAsManeuver()
+    private static void MakeBonusesFalse()
     {
-        Game.CurrentPlayer.PlayCard(CardBeingPlayed.IndexInHand);
-        string response = DamageOponnentController.Damage(CardBeingPlayed.CardInfo, 0);
-        DamageOponnentController.SolveDamageResponse(response);
+        JockeyingForPBonuses.MakeFalse();
+        IrishWhipBonus.AttackPlus5D = false;
     }
 }

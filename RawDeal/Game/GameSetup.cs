@@ -8,7 +8,7 @@ static class GameSetup
     private static StringList selectedSuperStarNames = new StringList();
     private static SuperStarCollection selectedSuperStars =
         new SuperStarCollection(new List<SuperStar>());
-    private static List<Player> players = new List<Player>();
+    private static PlayerList players = new PlayerList();
 
     public static bool SetupGame(string deckFolder)
     {
@@ -51,14 +51,12 @@ static class GameSetup
         int initialNumberOfCardsInArsenal = DeckValidator.ValidDeckLength - 1;
         for (int i = 0; i < AmountOfPlayers; i++)
         {
-            players.Insert(
-                i,
-                new Player(
-                    selectedSuperStarNames[i], initialFortitudeRating,
-                    selectedSuperStars[i].CardInfo.HandSize,
-                    initialNumberOfCardsInArsenal
-                )
+            Player player = new Player(
+                selectedSuperStarNames[i], initialFortitudeRating,
+                selectedSuperStars[i].CardInfo.HandSize,
+                initialNumberOfCardsInArsenal
             );
+            players.Insert(i, player);
         }
     }
 
@@ -87,10 +85,10 @@ static class GameSetup
         Game.CurrentPlayer = players[0].SuperStar.CardInfo.SuperstarValue
             >= players[1].SuperStar.CardInfo.SuperstarValue ?
             players[0] : players[1];
-        Game.CurrentOponnent = Object.ReferenceEquals(Game.CurrentPlayer, players[0]) ?
+        Game.CurrentOpponent = Object.ReferenceEquals(Game.CurrentPlayer, players[0]) ?
             players[1] : players[0];
         Game.View.SayThatATurnBegins(Game.CurrentPlayer._superstarName);
-        Game.CurrentPlayer.startTurn();
-        Game.View.ShowGameInfo(Game.CurrentPlayer, Game.CurrentOponnent);
+        Game.CurrentPlayer.StartTurn();
+        Game.View.ShowGameInfo(Game.CurrentPlayer, Game.CurrentOpponent);
     }
 }

@@ -1,6 +1,6 @@
 namespace RawDeal;
 
-public static class DamageOponnentController
+public static class DamageOpponentController
 {
     private static Player playerToDamage;
     private static Player playerDoingDamage;
@@ -8,10 +8,11 @@ public static class DamageOponnentController
     private static int cardReversingsDamage;
     private static int damage;
 
-    public static string Damage(CardInfo cardDoingDamage, int cardReversingsDamage)
+    public static string MakeDamage(CardInfo cardDoingDamage, int cardReversingsDamage)
     {
         DefineClassAttributes(cardDoingDamage, cardReversingsDamage);
         if (DamageIs0()) { return ""; }
+        UpdateConditionsToPlayCards();
         Game.View.SayThatSuperstarWillTakeSomeDamage(playerToDamage._superstarName, damage);
         return playerToDamage.ReceiveDamageFromCard(
             damage, cardDoingDamage, CardBeingPlayed.PlayedAs
@@ -21,37 +22,44 @@ public static class DamageOponnentController
     private static void DefineClassAttributes(CardInfo cardDoingDamage, int cardReversingsDamage)
     {
         DefineCardsAttributes(cardDoingDamage, cardReversingsDamage);
-        DefinePlayersRoles(); 
+        DefinePlayersRoles();
         DefineDamage();
     }
 
     private static void DefineCardsAttributes(CardInfo cardDoingDamage, int cardReversingsDamage)
     {
-        DamageOponnentController.cardDoingDamage = cardDoingDamage;
-        DamageOponnentController.cardReversingsDamage = cardReversingsDamage;
+        DamageOpponentController.cardDoingDamage = cardDoingDamage;
+        DamageOpponentController.cardReversingsDamage = cardReversingsDamage;
     }
 
     private static void DefinePlayersRoles()
     {
         playerToDamage = cardReversingsDamage == 0 ?
-            Game.CurrentOponnent : Game.CurrentPlayer;
+            Game.CurrentOpponent : Game.CurrentPlayer;
         playerDoingDamage = Object.ReferenceEquals(playerToDamage, Game.CurrentPlayer) ?
-            Game.CurrentOponnent : Game.CurrentPlayer;
+            Game.CurrentOpponent : Game.CurrentPlayer;
     }
 
     private static void DefineDamage()
     {
-        damage = cardDoingDamage.Damage == "#" ? 
+        damage = cardDoingDamage.Damage == "#" ?
             cardReversingsDamage : Int32.Parse(cardDoingDamage.Damage);
-        if (JockeyingForP.AttackPlus4D) { damage += 4; }     
+        if (JockeyingForPBonuses.AttackPlus4D) { damage += 4; }
+        if (IrishWhipBonus.AttackPlus5D) { damage += 5; }
         if (MankindAbilityApplies()) { damage--; }
     }
 
     private static bool MankindAbilityApplies() =>
         playerDoingDamage._superstarName == "MANKIND" && cardDoingDamage.Damage == "#";
 
-    private static bool DamageIs0() => 
+    private static bool DamageIs0() =>
         damage == 0 || (playerToDamage._superstarName == "MANKIND" && --damage == 0);
+
+    private static void UpdateConditionsToPlayCards()
+    {
+        ConditionsToPlayCards.LionSaultPlayable = damage >= 4;
+        ConditionsToPlayCards.AustinElbowSmashPlayable = damage >= 5;
+    }
 
     public static void SolveDamageResponse(string response)
     {
@@ -67,7 +75,7 @@ public static class DamageOponnentController
 
     private static void SolveDamageReversed(string response)
     {
-        Game.View.SayThatCardWasReversedByDeck(Game.CurrentOponnent._superstarName);
+        Game.View.SayThatCardWasReversedByDeck(Game.CurrentOpponent._superstarName);
         if (StunValueApplies(response)) { SolveStunValue(); }
         Game.EndTurn();
     }

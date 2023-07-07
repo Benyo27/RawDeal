@@ -11,20 +11,14 @@ public class GetPlayableCardsController
     private static ReverseConditionCatalog reverseConditionCatalog =
         ReverseConditionCatalog.Instance;
 
-    public GetPlayableCardsController(Player player)
-    {
-        this.player = player;
-    }
+    public GetPlayableCardsController(Player player) => this.player = player;
 
     public (CardCollection, List<string>, IntList) GetPlayableNotReversalCards()
     {
         EmptyPlayableCardsRelatedLists();
         for (int i = 0; i < player.CardsInHand.Count; i++)
         {
-            if (player._fortitudeRating >= Int32.Parse(player.CardsInHand[i].Fortitude))
-            {
-                ProcessNotReversalPlayableCard(i);
-            }
+            ProcessNotReversalPlayableCard(i);
         }
         return (playableCards, playableCardsFormatted, playableCardsIndexInHand);
     }
@@ -33,14 +27,41 @@ public class GetPlayableCardsController
     {
         for (int j = 0; j < player.CardsInHand[index].Types.Count; j++)
         {
-            if (player.CardsInHand[index].Types[j] != "Reversal")
+            if (CardIsPlayable(index, j))
             {
-                AddElementsToPlayableCardsRelatedLists(index, 
-                    new PlayInfo(player.CardsInHand[index], 
-                        player.CardsInHand[index].Types[j].ToUpper()));
+                PlayInfo playInfo = new PlayInfo(player.CardsInHand[index],
+                    player.CardsInHand[index].Types[j].ToUpper());
+                AddElementsToPlayableCardsRelatedLists(index, playInfo);
             }
         }
     }
+
+    private bool CardIsPlayable(int cardIndex, int typeIndex) =>
+        PlayerHaveEnoughFortitudeToPlayCard(cardIndex, typeIndex) &&
+        CurrentTypeIsNotReversal(cardIndex, typeIndex) &&
+        !IsSpitAtOpponentCase(cardIndex) &&
+        !IsLionsaultCase(cardIndex) && !IsAustinElbowSmashCase(cardIndex);
+
+    private bool PlayerHaveEnoughFortitudeToPlayCard(int cardIndex, int typeIndex) =>
+        player._fortitudeRating >= Int32.Parse(player.CardsInHand[cardIndex].Fortitude) ||
+        IsUndertakersTombstoneCase(cardIndex, typeIndex);
+
+    private bool IsUndertakersTombstoneCase(int cardIndex, int typeIndex) =>
+        player.CardsInHand[cardIndex].Title == "Undertaker's Tombstone Piledriver" &&
+        player.CardsInHand[cardIndex].Types[typeIndex] == "Action";
+
+    private bool CurrentTypeIsNotReversal(int cardIndex, int typeIndex) =>
+        player.CardsInHand[cardIndex].Types[typeIndex] != "Reversal";
+
+    private bool IsSpitAtOpponentCase(int index) =>
+        player.CardsInHand[index].Title == "Spit At Opponent" && player.CardsInHand.Count < 2;
+
+    private bool IsLionsaultCase(int index) =>
+        player.CardsInHand[index].Title == "Lionsault" && !ConditionsToPlayCards.LionSaultPlayable;
+
+    private bool IsAustinElbowSmashCase(int index) =>
+        player.CardsInHand[index].Title == "Austin Elbow Smash" &&
+        !ConditionsToPlayCards.AustinElbowSmashPlayable;
 
     public (CardCollection, List<string>, IntList) GetPlayableReversals(
         CardInfo cardToReverse, string playedAs)
@@ -48,9 +69,7 @@ public class GetPlayableCardsController
         EmptyPlayableCardsRelatedLists();
         for (int i = 0; i < player.CardsInHand.Count; i++)
         {
-            if (player.HaveFortitudeToUseReversal(player.CardsInHand[i]) &&
-                reverseConditionCatalog.DoesReverse(player.CardsInHand[i].Title,
-                    true, cardToReverse, playedAs))
+            if (ReversalIsPlayable(i, cardToReverse, playedAs))
             {
                 PlayInfo playInfo = new PlayInfo(player.CardsInHand[i], "REVERSAL");
                 AddElementsToPlayableCardsRelatedLists(i, playInfo);
@@ -65,6 +84,12 @@ public class GetPlayableCardsController
         playableCardsFormatted = new List<string>();
         playableCardsIndexInHand = new IntList();
     }
+
+    private bool ReversalIsPlayable(int index, CardInfo cardToReverse, string playedAs) =>
+        player.HaveFortitudeToUseReversal(player.CardsInHand[index]) &&
+        reverseConditionCatalog.DoesReverse(player.CardsInHand[index].Title,
+            true, cardToReverse, playedAs) &&
+        cardToReverse.Title != "Tree of Woe" && cardToReverse.Title != "Austin Elbow Smash";
 
     private void AddElementsToPlayableCardsRelatedLists(int index, PlayInfo playInfo)
     {

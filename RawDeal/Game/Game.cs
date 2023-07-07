@@ -6,7 +6,7 @@ namespace RawDeal;
 public class Game
 {
     private static Player currentPlayer;
-    private static Player currentOponnent;
+    private static Player currentOpponent;
     private static View view;
     private static CardCollection cards;
     private static SuperStarCollection superStars;
@@ -27,10 +27,10 @@ public class Game
         set { currentPlayer = value; }
     }
 
-    public static Player CurrentOponnent
+    public static Player CurrentOpponent
     {
-        get { return currentOponnent; }
-        set { currentOponnent = value; }
+        get { return currentOpponent; }
+        set { currentOpponent = value; }
     }
 
     public static View View { get { return view; } }
@@ -39,7 +39,11 @@ public class Game
 
     public static SuperStarCollection SuperStars { get { return superStars; } }
 
-    public static bool ContinuePlaying { set { continuePlaying = value; } }
+    public static bool ContinuePlaying
+    {
+        get { return continuePlaying; }
+        set { continuePlaying = value; }
+    }
 
     private void SetupCardsAttribute()
     {
@@ -69,7 +73,7 @@ public class Game
                 view.AskUserWhatToDoWhenUsingHisAbilityIsPossible() :
                 view.AskUserWhatToDoWhenHeCannotUseHisAbility();
             TakeAction(playInput);
-            if (continuePlaying) { view.ShowGameInfo(currentPlayer, currentOponnent); }
+            if (continuePlaying) { view.ShowGameInfo(currentPlayer, currentOpponent); }
         }
     }
 
@@ -95,24 +99,27 @@ public class Game
         currentPlayer.HasPlayedAbilityInThisTurn = true;
     }
 
-    public static void EndTurn(bool isJockeyingFPEffectStillActive = false)
+    public static void EndTurn(
+        bool isJockeyingFPEffectStillActive = false, bool isIrishWhipBonusStillActive = false)
     {
         if (APlayerHasWon()) { EndGame(); return; }
-        view.SayThatATurnBegins(currentOponnent._superstarName);
+        view.SayThatATurnBegins(currentOpponent._superstarName);
         UpdatePlayersRoles();
-        currentPlayer.startTurn();
+        currentPlayer.StartTurn();
         UpdateJockeyingForPBonus(isJockeyingFPEffectStillActive);
+        UpdateIrishWhipBonus(isIrishWhipBonusStillActive);
+        UpdateConditionsToPlayCards();
     }
 
     private static bool APlayerHasWon() =>
         currentPlayer._numberOfCardsInArsenal == 0 ||
-        currentOponnent._numberOfCardsInArsenal == 0;
+        currentOpponent._numberOfCardsInArsenal == 0;
 
-    private static void EndGame()
+    public static void EndGame()
     {
-        string winnersName = currentOponnent._numberOfCardsInArsenal == 0 ?
+        string winnersName = currentOpponent._numberOfCardsInArsenal == 0 ?
             currentPlayer._superstarName :
-            currentOponnent._superstarName;
+            currentOpponent._superstarName;
         view.CongratulateWinner(winnersName);
         continuePlaying = false;
     }
@@ -120,17 +127,26 @@ public class Game
     private static void UpdatePlayersRoles()
     {
         Player lastCurrentPlayer = currentPlayer;
-        currentPlayer = currentOponnent;
-        currentOponnent = lastCurrentPlayer;
+        currentPlayer = currentOpponent;
+        currentOpponent = lastCurrentPlayer;
     }
     private static void UpdateJockeyingForPBonus(bool isJockeyingFPEffectStillActive)
     {
-        JockeyingForP.IsActive = isJockeyingFPEffectStillActive;
-        JockeyingForP.AttackPlus4D = false;
+        JockeyingForPBonuses.IsActive = isJockeyingFPEffectStillActive;
+        JockeyingForPBonuses.AttackPlus4D = false;
+    }
+
+    private static void UpdateIrishWhipBonus(bool isIrishWhipBonusStillActive) =>
+        IrishWhipBonus.AttackPlus5D = isIrishWhipBonusStillActive;
+
+    private static void UpdateConditionsToPlayCards()
+    {
+        ConditionsToPlayCards.LionSaultPlayable = false;
+        ConditionsToPlayCards.AustinElbowSmashPlayable = false;
     }
 
     public static bool APlayerHasWon(CardInfo cardDoingDamage) =>
-        currentOponnent._numberOfCardsInArsenal == 0 ||
+        currentOpponent._numberOfCardsInArsenal == 0 ||
         (
             currentPlayer._numberOfCardsInArsenal == 0 &&
             cardDoingDamage.Types[0] == "Reversal"

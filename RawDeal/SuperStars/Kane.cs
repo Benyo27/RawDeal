@@ -6,7 +6,7 @@ public class Kane : SuperStar
     public override void UseAbility()
     {
         Game.View.SayThatPlayerIsGoingToUseHisAbility(CardInfo.Name, CardInfo.SuperstarAbility);
-        Game.View.SayThatSuperstarWillTakeSomeDamage(Game.CurrentOponnent._superstarName, 1);
-        Game.CurrentOponnent.ReceiveOneDamage(1, 1);
+        Game.View.SayThatSuperstarWillTakeSomeDamage(Game.CurrentOpponent._superstarName, 1);
+        Game.CurrentOpponent.ReceiveOneDamage(1, 1);
     }
 }

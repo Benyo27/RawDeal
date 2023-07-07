@@ -1,11 +1,11 @@
 namespace RawDeal;
 
-public class AnyManeuver : ICondition
+public class AnyManeuverCondition : IReverseCondition
 {
     private string subtype;
     private bool have7DCondition;
 
-    public AnyManeuver(string subtype, bool have7DCondition)
+    public AnyManeuverCondition(string subtype, bool have7DCondition)
     {
         this.subtype = subtype;
         this.have7DCondition = have7DCondition;
@@ -23,7 +23,9 @@ public class AnyManeuver : ICondition
     private static bool CheckDamageToReverse(CardInfo cardToReverse)
     {
         int transitoryDamage = Int32.Parse(cardToReverse.Damage);
-        if (JockeyingForP.AttackPlus4D) { transitoryDamage += 4; }
+        if (JockeyingForPBonuses.AttackPlus4D) { transitoryDamage += 4; }
+        if (IrishWhipBonus.AttackPlus5D) { transitoryDamage += 5; }
+        if (Game.CurrentOpponent._superstarName == "MANKIND") { transitoryDamage -= 1; }
         if (transitoryDamage > 7) { return false; }
         return true;
     }

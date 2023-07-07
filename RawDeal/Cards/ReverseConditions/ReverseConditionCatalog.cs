@@ -10,7 +10,7 @@ public class ReverseConditionCatalog
     public bool DoesReverse(
         string cardTitle, bool playedFromHand, CardInfo cardDoingDamage, string playedAs)
     {
-        foreach (ICondition condition in instance.GetConditions(cardTitle))
+        foreach (IReverseCondition condition in instance.GetConditions(cardTitle))
         {
             if (!condition.Accomplished(playedFromHand, cardDoingDamage, playedAs))
             {
@@ -133,25 +133,25 @@ public class ReverseConditionCatalog
         // TODO : When successfully played, opponent must discard 1 card. 
         conditions["Figure Four Leg Lock"] = new ConditionCollection { new NoReverse() };
         // Reverse any Strike maneuver and end your opponent's turn. 
-        conditions["Step Aside"] = new ConditionCollection { new AnyManeuver("Strike", false) };
+        conditions["Step Aside"] = new ConditionCollection { new AnyManeuverCondition("Strike", false) };
         // Reverse any Grapple maneuver and end your opponent's turn. 
-        conditions["Escape Move"] = new ConditionCollection { new AnyManeuver("Grapple", false) };
+        conditions["Escape Move"] = new ConditionCollection { new AnyManeuverCondition("Grapple", false) };
         // Reverse any Submission maneuver and end your opponent's turn. 
-        conditions["Break the Hold"] = new ConditionCollection { new AnyManeuver("Submission", false) };
+        conditions["Break the Hold"] = new ConditionCollection { new AnyManeuverCondition("Submission", false) };
         // Can only reverse a Grapple that does 7D or less. End your opponent's turn. # = D of maneuver card being reversed. Read as 0 when in your Ring area. 
-        conditions["Rolling Takedown"] = new ConditionCollection { new AnyManeuver("Grapple", true) };
+        conditions["Rolling Takedown"] = new ConditionCollection { new AnyManeuverCondition("Grapple", true) };
         // Can only reverse a Strike that does 7D or less. End your opponent's turn. # = D of maneuver card being reversed. Read as 0 when in your Ring area. 
-        conditions["Knee to the Gut"] = new ConditionCollection { new AnyManeuver("Strike", true) };
+        conditions["Knee to the Gut"] = new ConditionCollection { new AnyManeuverCondition("Strike", true) };
         // May reverse any maneuver that does 7D or less. End your opponent's turn. 
-        conditions["Elbow to the Face"] = new ConditionCollection { new AnyManeuver("any", true) };
+        conditions["Elbow to the Face"] = new ConditionCollection { new AnyManeuverCondition("any", true) };
         // If played from your hand, may reverse the card titled Jockeying for Position. Opponent must discard 4 cards. End your opponent's turn. Draw 1 card. 
-        conditions["Clean Break"] = new ConditionCollection { new JockeyingForPosition(false) };
+        conditions["Clean Break"] = new ConditionCollection { new JockeyingForPositionCondition(false) };
         // Reverse any maneuver and end your opponent's turn. If played from your hand draw 1 card. 
-        conditions["Manager Interferes"] = new ConditionCollection { new AnyManeuver("any", false) };
+        conditions["Manager Interferes"] = new ConditionCollection { new AnyManeuverCondition("any", false) };
         // TODO : Reverse any HEEL maneuver or reversal card if that opponent has 5 or more HEEL cards in his Ring area. Opponent is Disqualified and you win the game. This effect happens even if the card titled Disqualification is placed into your Ringside pile while applying damage from a HEEL maneuver or reversal card. 
         conditions["Disqualification!"] = new ConditionCollection { new NoReverse() };
         // Reverse any ACTION card being played by your opponent from his hand. It is unsuccessful, goes to his Ringside pile, has no effect and ends his turn. 
-        conditions["No Chance in Hell"] = new ConditionCollection { new AnyAction() };
+        conditions["No Chance in Hell"] = new ConditionCollection { new AnyActionCondition() };
         // TODO : Look at the top 5 cards of your Arsenal. You may either arrange them in any order or shuffle your Arsenal. 
         conditions["Hmmm"] = new ConditionCollection { new NoReverse() };
         // TODO : Look at the top 5 cards of an opponent's Arsenal. You may either arrange them in any order or make him shuffle his Arsenal. 
@@ -161,9 +161,9 @@ public class ReverseConditionCatalog
         // TODO : Take a card in your hand, shuffle it into your Arsenal, then draw 2 cards. 
         conditions["Not Yet"] = new ConditionCollection { new NoReverse() };
         // As an action, if your next card played is a Grapple maneuver, declare whether it will be +4D or your opponent's reversal to it will be +8F. As a reversal, may only reverse the card titled Jockeying for Position. If so, you end opponent's turn; and if your next card played on your turn is a Grapple maneuver, declare whether it will be +4D or your opponent's reversal to it will be +8F. 
-        conditions["Jockeying for Position"] = new ConditionCollection { new JockeyingForPosition(true) };
+        conditions["Jockeying for Position"] = new ConditionCollection { new JockeyingForPositionCondition(true) };
         // TODO : As an action, if your next card played is a Strike maneuver it is +5D. As a reversal, may only reverse the card titled Irish Whip. If so, you end opponent's turn; and if your next card played on your turn is a Strike maneuver it is +5D. 
-        conditions["Irish Whip"] = new ConditionCollection { new NoReverse() };
+        conditions["Irish Whip"] = new ConditionCollection { new IrishWhipCondition() };
         // TODO : Draw 1 card. Look at opponent's hand, and then make him discard all HEEL cards. 
         conditions["Flash in the Pan"] = new ConditionCollection { new NoReverse() };
         // TODO : Draw 1 card. Look at opponent's hand, and then make him discard all FACE cards. 
@@ -239,7 +239,7 @@ public class ReverseConditionCatalog
         // TODO : When successfully played, +2D if played after a Strike maneuver. May only reverse the maneuver titled Back Body Drop. 
         conditions["Pedigree"] = new ConditionCollection { new NoReverse() };
         // Reverses any maneuver and ends your opponent's turn. If played from your hand, draw 2 cards. 
-        conditions["Chyna Interferes"] = new ConditionCollection { new AnyManeuver("any", false) };
+        conditions["Chyna Interferes"] = new ConditionCollection { new AnyManeuverCondition("any", false) };
         // TODO : Draw 1 card. Look at your opponent's hand. Your next maneuver this turn is +6D. 
         conditions["Smackdown Hotel"] = new ConditionCollection { new NoReverse() };
         // TODO : Reverse any Strike, Grapple or Submission maneuver. End your opponent's turn. If played from your hand, shuffle up to 5 cards from your Ringside pile into your Arsenal. 

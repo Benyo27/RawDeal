@@ -13,61 +13,89 @@ public static class ReverseFromHandController
 
     public static bool DoesReverse()
     {
-        UpdateJockeyingForPBonus();
-        (playableReversals, playableReversalsFormatted, reversalIndexInHand) = Game.CurrentOponnent
+        UpdateBonuses();
+        (playableReversals, playableReversalsFormatted, reversalIndexInHand) = Game.CurrentOpponent
             .GetPlayableReversals(CardBeingPlayed.CardInfo, CardBeingPlayed.PlayedAs);
         reversalIndexInput = Game.View.AskUserToSelectAReversal(
-            Game.CurrentOponnent._superstarName, playableReversalsFormatted
-        );
+            Game.CurrentOpponent._superstarName, playableReversalsFormatted);
         if (!playableReversals.Any() || reversalIndexInput == -1) { return false; }
         reversal = playableReversals[reversalIndexInput];
         Reverse(); return true;
     }
 
-    public static void UpdateJockeyingForPBonus()
+    private static void UpdateBonuses()
+    {
+        UpdateJockeyingForPBonus();
+        UpdateIrishWhipBonus();
+    }
+
+    private static void UpdateJockeyingForPBonus()
     {
         if (JockeyingFPEffectGetsActivated())
         {
-            JockeyingForP.AttackPlus4D = JockeyingForP.SelectedEffect == SelectedEffect
-                .NextGrappleIsPlus4D;
-            JockeyingForP.ReversalPlus8F = JockeyingForP.SelectedEffect == SelectedEffect
-                .NextGrapplesReversalIsPlus8F;
+            JockeyingForPBonuses.AttackPlus4D =
+                JockeyingForPBonuses.SelectedEffect == SelectedEffect.NextGrappleIsPlus4D;
+            JockeyingForPBonuses.ReversalPlus8F =
+                JockeyingForPBonuses.SelectedEffect == SelectedEffect.NextGrapplesReversalIsPlus8F;
         }
     }
 
     private static bool JockeyingFPEffectGetsActivated() =>
-        JockeyingForP.IsActive && CardBeingPlayed.PlayedAs == "MANEUVER" &&
+        JockeyingForPBonuses.IsActive && CardBeingPlayed.PlayedAs == "MANEUVER" &&
+        CardBeingPlayed.CardInfo.Subtypes.Contains("Grapple");
+
+    private static void UpdateIrishWhipBonus() =>
+        IrishWhipBonus.AttackPlus5D = IrishWhipBonus.AttackPlus5D && 
+        CardBeingPlayed.PlayedAs == "MANEUVER" &&
         CardBeingPlayed.CardInfo.Subtypes.Contains("Grapple");
 
     private static void Reverse()
     {
         Game.View.SayThatPlayerReversedTheCard(
-            Game.CurrentOponnent._superstarName, playableReversalsFormatted[reversalIndexInput]
-        );
+            Game.CurrentOpponent._superstarName, playableReversalsFormatted[reversalIndexInput]);
         Game.CurrentPlayer.DiscardCardFromHand(CardBeingPlayed.IndexInHand);
+        CardBeingPlayed.PlayedAs = "REVERSAL";
         effectCatalog.ApplyEffects(reversal.Title);
         PlayReversal();
     }
 
     private static void PlayReversal()
     {
-        Game.CurrentOponnent.PlayCard(reversalIndexInHand[reversalIndexInput]);
-        SolveJockeyingForP();
-        DamageOponnentController.Damage(reversal, Int32.Parse(CardBeingPlayed.CardInfo.Damage));
+        Game.CurrentOpponent.PlayCard(reversalIndexInHand[reversalIndexInput]);
+        SolveBonusCards();
+        DamageOpponentController.MakeDamage(reversal, Int32.Parse(CardBeingPlayed.CardInfo.Damage));
         Game.EndTurn(reversal.Title == "Jockeying for Position");
+    }
+
+    private static void SolveBonusCards()
+    {
+        SolveJockeyingForP();
+        SolveIrishWhip();
     }
 
     private static void SolveJockeyingForP()
     {
         if (reversal.Title == "Jockeying for Position")
         {
-            JockeyingForP.SelectedEffect = Game.View
-                .AskUserToSelectAnEffectForJockeyForPosition(Game.CurrentOponnent._superstarName);
-            JockeyingForP.IsActive = true;
+            JockeyingForPBonuses.SelectedEffect = Game.View
+                .AskUserToSelectAnEffectForJockeyForPosition(Game.CurrentOpponent._superstarName);
+            JockeyingForPBonuses.IsActive = true;
         }
-        else if (!(JockeyingForP.AttackPlus4D && reversal.CardEffect.Contains("does 7D")))
+        else if (!(JockeyingForPBonuses.AttackPlus4D && reversal.CardEffect.Contains("does 7D")))
         {
-            JockeyingForP.MakeFalse();
+            JockeyingForPBonuses.MakeFalse();
+        }
+    }
+
+    private static void SolveIrishWhip()
+    {
+        if (reversal.Title == "Irish Whip")
+        {
+            IrishWhipBonus.AttackPlus5D = true;
+        }
+        else if (!(IrishWhipBonus.AttackPlus5D && reversal.CardEffect.Contains("does 7D")))
+        {
+            IrishWhipBonus.AttackPlus5D = false;
         }
     }
 }

@@ -50,7 +50,23 @@ public class Player : PlayerInfo
     private void SetupSuperStar() =>
         superStar = Game.SuperStars.Find(_superstarName);
 
-    public void startTurn()
+    public void StartTurn()
+    {
+        SolveAbilities();
+        DrawCards(1, true);
+        hasPlayedAbilityInThisTurn = false;
+    }
+
+    public void DrawCards(int numberOfCardsToDraw, bool isFirstTimeCallingFunction = true)
+    {
+        for (int i = 0; i < numberOfCardsToDraw; i++)
+        {
+            SolvePassingCards(false, cardsInArsenal.Count - 1, cardsInArsenal, cardsInHand);
+            if (IsMankindDrawSpecialCase(isFirstTimeCallingFunction)) { DrawCards(1, false); }
+        }
+    }
+
+    private void SolveAbilities()
     {
         if (_superstarName == "KANE") { superStar.UseAbility(); }
         else if (_superstarName == "THE ROCK" && cardsInRingside.Count > 0)
@@ -59,8 +75,6 @@ public class Player : PlayerInfo
                 .DoesPlayerWantToUseHisAbility(_superstarName);
             if (playerWantToUseHisAbility) { superStar.UseAbility(); }
         }
-        DrawCards(1, true);
-        hasPlayedAbilityInThisTurn = false;
     }
 
     public (CardCollection, List<string>, IntList) GetPlayableNotReversalCards() =>
@@ -76,25 +90,13 @@ public class Player : PlayerInfo
         {
             if (Game.APlayerHasWon(cardDoingDamage)) { return "Game Over"; }
             CardInfo cardToDiscard = ReceiveOneDamage(currentDamage, totalDamage);
-            if (
-                HaveFortitudeToUseReversal(cardToDiscard) &&
-                ReverseFromDeckController.DoesReverse(cardDoingDamage, cardToDiscard, playedAs)
-            )
+            if (ReversalIsPlayable(cardToDiscard, cardDoingDamage, playedAs))
             {
-                return ReverseFromDeckController.Reverse(
-                    cardToDiscard.Title, totalDamage, currentDamage
-                );
+                return ReverseFromDeckController.Reverse(cardToDiscard.Title,
+                    totalDamage, currentDamage);
             }
         }
         return "";
-    }
-
-    public bool HaveFortitudeToUseReversal(CardInfo card)
-    {
-        int transitoryFortitudeRating = Int32.Parse(card.Fortitude);
-        if (JockeyingForP.ReversalPlus8F) { transitoryFortitudeRating += 8; }
-        if (_fortitudeRating < transitoryFortitudeRating) { return false; }
-        return true;
     }
 
     public CardInfo ReceiveOneDamage(int currentDamage, int totalDamage)
@@ -107,6 +109,21 @@ public class Player : PlayerInfo
         return cardToDiscard;
     }
 
+    private bool ReversalIsPlayable(CardInfo cardToDiscard,
+        CardInfo cardDoingDamage, string playedAs) =>
+            HaveFortitudeToUseReversal(cardToDiscard) &&
+            ReverseFromDeckController.DoesReverse(cardDoingDamage, cardToDiscard, playedAs) &&
+            cardDoingDamage.Title != "Tree of Woe" &&
+            cardDoingDamage.Title != "Austin Elbow Smash";
+
+    public bool HaveFortitudeToUseReversal(CardInfo card)
+    {
+        int transitoryFortitudeRating = Int32.Parse(card.Fortitude);
+        if (JockeyingForPBonuses.ReversalPlus8F) { transitoryFortitudeRating += 8; }
+        if (_fortitudeRating < transitoryFortitudeRating) { return false; }
+        return true;
+    }
+
     public void PlayCard(int cardIndex)
     {
         CardInfo cardToPlay = cardsInHand[cardIndex];
@@ -114,33 +131,43 @@ public class Player : PlayerInfo
         if (cardToPlay.Damage != "#") { _fortitudeRating += Int32.Parse(cardToPlay.Damage); }
     }
 
-    public void DrawCards(int numberOfCardsToDraw, bool isFirstTimeCallingFunction = true)
-    {
-        for (int i = 0; i < numberOfCardsToDraw; i++)
-        {
-            SolvePassingCards(false, cardsInArsenal.Count - 1, cardsInArsenal, cardsInHand);
-            if (IsMankindDrawSpecialCase(isFirstTimeCallingFunction)) { DrawCards(1, false); }
-        }
-    }
-
     private bool IsMankindDrawSpecialCase(bool isFirstTimeCallingFunction) =>
         _superstarName == "MANKIND" && isFirstTimeCallingFunction && _numberOfCardsInArsenal > 0;
 
-    public void AskToDiscardCardsFromHand(int numberOfCardsToDiscard)
+    public void AskToDiscardCardsFromHand(int numberOfCardsToDiscard,
+        bool whilePlayingACard = false, bool opponentChoose = false)
     {
         int currentNumberOfCardsToDiscard = numberOfCardsToDiscard;
         for (int i = 0; i < numberOfCardsToDiscard; i++)
         {
+            if (NoCardsToDiscard(whilePlayingACard)) { return; }
             List<string> cardsInHandFormatted = CardFormatter.GetCardsFormatted(cardsInHand);
+            if (whilePlayingACard) { cardsInHandFormatted.RemoveAt(CardBeingPlayed.IndexInHand); }
+            string whoDiscards = opponentChoose ?
+                Game.CurrentPlayer._superstarName : _superstarName;
             int cardToDiscardIndex = Game.View.AskPlayerToSelectACardToDiscard(
-                cardsInHandFormatted, _superstarName, _superstarName, currentNumberOfCardsToDiscard
+                cardsInHandFormatted, _superstarName, whoDiscards, currentNumberOfCardsToDiscard
             );
-            DiscardCardFromHand(cardToDiscardIndex); currentNumberOfCardsToDiscard--;
+            DiscardCardFromHand(cardToDiscardIndex, whilePlayingACard);
+            currentNumberOfCardsToDiscard--;
         }
     }
 
-    public void DiscardCardFromHand(int cardIndex) =>
+    private bool NoCardsToDiscard(bool whilePlayingACard) =>
+        cardsInHand.Count == 0 || (cardsInHand.Count == 1 && whilePlayingACard);
+
+    public void DiscardCardFromHand(int cardIndex, bool whilePlayingACard = false)
+    {
+        if (whilePlayingACard) { DiscardCardFromHandWhilePlayingACard(cardIndex); return; }
         SolvePassingCards(false, cardIndex, cardsInHand, cardsInRingside);
+    }
+
+    private void DiscardCardFromHandWhilePlayingACard(int cardIndex)
+    {
+        cardsInHand.RemoveAt(CardBeingPlayed.IndexInHand);
+        SolvePassingCards(false, cardIndex, cardsInHand, cardsInRingside);
+        cardsInHand.Insert(CardBeingPlayed.IndexInHand, CardBeingPlayed.CardInfo);
+    }
 
     public void PassCardFromRingsideToHand(int cardIndex) =>
         SolvePassingCards(false, cardIndex, cardsInRingside, cardsInHand);
@@ -151,7 +178,7 @@ public class Player : PlayerInfo
     public void PassCardFromRingsideToArsenalsBeginning(int cardIndex) =>
         SolvePassingCards(true, cardIndex, cardsInRingside, cardsInArsenal);
 
-    public void SolvePassingCards(
+    private void SolvePassingCards(
         bool toBeginning, int cardIndex, CardCollection sourceList, CardCollection destinationList)
     {
         CardInfo cardToPass = sourceList[cardIndex];
